@@ -1,1 +1,3 @@
-print("Welcome to my Docker Container")
+import pandas as pd
+
+print("Pandas should be imported correctly")

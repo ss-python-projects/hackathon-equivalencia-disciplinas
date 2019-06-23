@@ -1,10 +1,14 @@
 from constants import columns
 
-###
-# Get all disciplines that have the SAME workload.
-#
-# @todo: make it also consider lower workloads, respecting 
-# the rules.
-###
-def get_equivalents_by_workload(discipline, disciplines):
-  return disciplines[disciplines[columns.DISCIPLINE_WORKLOAD] == discipline[columns.DISCIPLINE_WORKLOAD]]
+"""
+@todo: this module should be converted to a Class.
+"""
+
+def difference(discipline_a, discipline_b):
+    """
+    Calculate `discipline_b`'s workload percentage 
+    based on `discipline_a`'s workload.
+    """
+    a = discipline_a[columns.DISCIPLINE_WORKLOAD]
+    b = discipline_b[columns.DISCIPLINE_WORKLOAD]
+    return (b / a)

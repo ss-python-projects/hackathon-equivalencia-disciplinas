@@ -15,7 +15,7 @@ class DisciplineEquivalence:
         self.orig_discipline_workload = orig_discipline_workload
         self.orig_discipline_syllabus = orig_discipline_syllabus
 
-        self.equiv_discipline_id = equiv_disciipline_id,
+        self.equiv_discipline_id = equiv_discipline_id,
         self.equiv_discipline_name = equiv_discipline_name
         self.equiv_discipline_workload = equiv_discipline_workload
         self.equiv_discipline_syllabus = equiv_discipline_syllabus

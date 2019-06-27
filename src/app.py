@@ -1,8 +1,10 @@
 import pandas as pd
-import input_reader
 from constants import columns
-from memory import whitelist, blacklist
 from equivalence import workload, syllabus
+
+import data_channel.input as input_channel
+from memory.whitelist import Whitelist
+from memory.blacklist import Blacklist
 
 def add_to_final_output(discipline, equivalence, equivalence_type):
     final_output = pd.DataFrame(columns=[
@@ -44,8 +46,12 @@ def push_to_final_output(discipline, equivalences):
     return final_output
 
 def main():
+    # The program's "memory" - avoids recalculating unnecessary stuff
+    whitelist = Whitelist()
+    blacklist = Blacklist()
+
     # Read both "offered" and "not offered" disciplines
-    discs_not_offered, discs_offered = input_reader.read_disciplines()
+    discs_not_offered, discs_offered = input_channel.read_disciplines()
 
     # Final equivalences shown to the coordinator
     final_output = pd.DataFrame(columns=[
@@ -61,11 +67,11 @@ def main():
 
         # If equivalences for "not offered" discipline were 
         # already calculated (i.e. is whitelisted), then:
-        if whitelist.has_equivalences(not_offered):
+        if whitelist.has_any_record(not_offered):
 
             # Get equivalences and save them into the final result
             final_output.append(
-                push_to_final_output(not_offered, whitelist.get_equivalences(not_offered)),
+                push_to_final_output(not_offered, whitelist.get_records_for(not_offered)),
                 ignore_index=True
             )
         
@@ -76,9 +82,9 @@ def main():
             # For each "offered" discipline, do:
             for j, offered in discs_offered.iterrows():
 
-                # If "offered" discipline is already tagged as not equivalent 
+                # If "offered" discipline is NOT tagged as not equivalent 
                 # (i.e. is blacklisted), then:
-                if not blacklist.is_not_equivalent(not_offered, offered):
+                if not blacklist.has_record(not_offered, offered):
                     workload_diff = workload.difference(not_offered, offered)
                     
                     # Check "equivalence type" based on difference between 
@@ -92,7 +98,7 @@ def main():
                     # If both disciplines are equivalent by workload and by 
                     # course syllabus
                     if equivalence_type > 0 and syllabus.similarity(not_offered, offered) > 0.40:
-                        whitelist.add(not_offered, offered)
+                        whitelist.add_record(not_offered, offered)
                         final_output.append(
                             add_to_final_output(not_offered, offered, equivalence_type),
                             ignore_index=True
@@ -100,7 +106,7 @@ def main():
 
                     # However, if both disciplines are NOT equivalent
                     else:
-                        blacklist.add(not_offered, offered)
+                        blacklist.add_record(not_offered, offered)
 
     print(final_output.head())
 

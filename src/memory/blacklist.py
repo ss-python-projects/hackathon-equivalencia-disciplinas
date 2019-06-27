@@ -1,5 +1,5 @@
 import pandas as pd
-from memory import database as db
+from memory.database import Database
 from equivalence import discipline_equivalence as de
 
 class Blacklist:
@@ -8,6 +8,9 @@ class Blacklist:
     Blacklisted disciplines are disciplines that were already 
     considered as not equivalents.
     """
+
+    def __init__(self):
+        self.db = Database()
 
     def has_record(self, discipline_a, discipline_b):
         """
@@ -22,7 +25,7 @@ class Blacklist:
         """
         Get all disciplines not equivalent to 'discipline_a'.
         """
-        db.get_documents("blacklist", discipline_a["COD_DISCIPLINA"])
+        return self.db.get_documents("blacklist", discipline_a["COD_DISCIPLINA"])
 
     def add_record(self, discipline_a, discipline_b):
         """
@@ -40,4 +43,4 @@ class Blacklist:
             equiv_discipline_syllabus=discipline_b["DSC_EMENTA"],
         )
 
-        db.add_document("blacklist", not_equivalence.serialize())
+        self.db.add_document("blacklist", not_equivalence.serialize())

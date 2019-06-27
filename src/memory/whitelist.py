@@ -1,5 +1,5 @@
 import pandas as pd
-from memory import database as db
+from memory.database import Database
 from equivalence import discipline_equivalence as de
 
 class Whitelist:
@@ -8,6 +8,9 @@ class Whitelist:
     Whitelisted disciplines are disciplines that were already 
     considered as equivalents.
     """
+
+    def __init__(self):
+        self.db = Database()
 
     def has_record(self, discipline_a, discipline_b):
         """
@@ -18,11 +21,18 @@ class Whitelist:
         is_id_equal_to_discipline_b = records_for_a["COD_DISCIP_EQUIV"] == discipline_b["COD_DISCIPLINA"]
         return records_for_a[is_id_equal_to_discipline_b].shape[0] > 0
 
+    def has_any_record(self, discipline_a):
+        """
+        Check if 'discipline_a' has any recorded equivalence.
+        """
+        records_for_a = self.get_records_for(discipline_a)
+        return records_for_a.shape[0] > 0
+
     def get_records_for(self, discipline_a):
         """
         Get all disciplines equivalent to 'discipline_a'.
         """
-        db.get_documents("whitelist", discipline_a["COD_DISCIPLINA"])
+        return self.db.get_documents("whitelist", discipline_a["COD_DISCIPLINA"])
 
     def add_record(self, discipline_a, discipline_b):
         """
@@ -40,5 +50,5 @@ class Whitelist:
             equiv_discipline_syllabus=discipline_b["DSC_EMENTA"],
         )
 
-        db.add_document("whitelist", discipline_equivalence.serialize())
+        self.db.add_document("whitelist", discipline_equivalence.serialize())
     

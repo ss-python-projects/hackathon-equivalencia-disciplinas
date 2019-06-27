@@ -1,56 +1,39 @@
 import pandas as pd
-from constants import columns
+from memory import database as db
+from equivalence import discipline_equivalence as de
 
-"""
-@todo: this module should be converted to a Class.
-"""
-
-def has_equivalences(discipline):
+class Whitelist:
     """
-    Check in the database if the given discipline already 
-    has calculated equivalences.
-
-    @todo: implement using documents (MongoDB).
+    A class that manages the whitelisted disciplines.
+    Whitelisted disciplines are disciplines that were already 
+    considered as equivalents.
     """
-    return True
 
-def get_equivalences(discipline):
-    """
-    Get all the equivalences of the discipline.
-    
-    @todo: implement using documents (MongoDB).
-    """
-    equivalences = pd.DataFrame(columns=[
-        columns.DISCIPLINE_NAME,
-        columns.DISCIPLINE_WORKLOAD,
-        columns.EQUIVALENT_DISCIPLINE_NAME,
-        columns.EQUIVALENT_DISCIPLINE_WORKLOAD,
-        columns.EQUIVALENCE_TYPE,
-    ])
+    def has_record(self, discipline_a, discipline_b):
+        """
+        Check if 'discipline_b' was already set as equivalent 
+        to 'discipline_a'.
+        """
+        return False
 
-    equivalences = equivalences.append({
-        columns.DISCIPLINE_NAME: discipline[columns.DISCIPLINE_NAME],
-        columns.DISCIPLINE_WORKLOAD: discipline[columns.DISCIPLINE_WORKLOAD],
-        columns.EQUIVALENT_DISCIPLINE_NAME: "Disciplina Equivalente #1",
-        columns.EQUIVALENT_DISCIPLINE_WORKLOAD: (discipline[columns.DISCIPLINE_WORKLOAD] - 15),
-        columns.EQUIVALENCE_TYPE: "2",
-    }, ignore_index=True)
+    def get_records_for(self, discipline_a):
+        """
+        Get all disciplines equivalent to 'discipline_a'.
+        """
+        
 
-    equivalences = equivalences.append({
-        columns.DISCIPLINE_NAME: discipline[columns.DISCIPLINE_NAME],
-        columns.DISCIPLINE_WORKLOAD: discipline[columns.DISCIPLINE_WORKLOAD],
-        columns.EQUIVALENT_DISCIPLINE_NAME: "Disciplina Equivalente #2",
-        columns.EQUIVALENT_DISCIPLINE_WORKLOAD: (discipline[columns.DISCIPLINE_WORKLOAD] - 0),
-        columns.EQUIVALENCE_TYPE: "1",
-    }, ignore_index=True)
+    def add_record(self, discipline_a, discipline_b):
+        """
+        Add 'discipline_b' as equivalent to 'discipline_a'.
+        """
+        discipline_equivalence = de.DisciplineEquivalence(
+            orig_discipline_name = discipline_a["NOM_DISCIPLINA"],
+            orig_discipline_workload = discipline_a["VAL_CARGA_HORARIA"],
+            orig_discipline_syllabus = discipline_a["DSC_EMENTA"],
+            equiv_discipline_name = discipline_b["NOM_DISCIPLINA"],
+            equiv_discipline_workload = discipline_b["VAL_CARGA_HORARIA"],
+            equiv_discipline_syllabus = discipline_b["DSC_EMENTA"],
+        )
 
-    return equivalences
-
-def add(discipline_a, discipline_b):
-    """
-    Add `discipline_b` as an equivalence of `discipline_a`.
-
-    @todo: implement using documents (MongoDB).
-    """
-    return True
+        db.add_document("whitelist", discipline_equivalence.serialize())
     

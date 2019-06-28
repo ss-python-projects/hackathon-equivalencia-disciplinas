@@ -28,8 +28,8 @@ def calculate_equivalences(discs_not_offered, discs_offered):
         if whitelist.has_any_related_discipline(not_offered_discipline):
 
             # Get equivalences and save them into the final result
-            final_output.append(
-                push_to_final_output(not_offered, whitelist.get_related_disciplines(not_offered_discipline)),
+            final_output = final_output.append(
+                whitelist.get_related_disciplines(not_offered_discipline),
                 ignore_index=True
             )
 

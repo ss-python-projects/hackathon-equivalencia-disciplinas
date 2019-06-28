@@ -7,15 +7,15 @@ def read_disciplines():
     """
     disciplines = pd.read_csv("assets/disciplines.csv", sep=";")
     disciplines = disciplines[[
-        "COD_DISCIPLINA", 
+        "COD_DISCIPLINA",
         "NOM_DISCIPLINA",
         "VAL_CARGA_HORARIA",
         "DSC_EMENTA",
     ]]
 
-    # Currently, using the same entry list. There should be separated lists 
+    # Currently, using the same entry list. There should be separated lists
     # for both inputs.
-    not_offered = disciplines[:5]
-    offered = disciplines[5:40]
+    not_offered = disciplines[:1]
+    offered = disciplines[5:15]
 
     return not_offered, offered

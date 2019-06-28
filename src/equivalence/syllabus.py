@@ -1,5 +1,3 @@
-from constants import columns
-
 """
 @todo: this module should be converted to a Class.
 """
@@ -12,8 +10,8 @@ def similarity(discipline_a, discipline_b):
     @todo: implement this algorithm using some Machine
     Learning technique.
     """
-    a = discipline_a[columns.DISCIPLINE_SYLLABUS]
-    b = discipline_b[columns.DISCIPLINE_SYLLABUS]
+    a = discipline_a["DSC_EMENTA"]
+    b = discipline_b["DSC_EMENTA"]
     words_a = a.split()
     words_b = b.split()
     # return (len(words_b) / len(words_a))

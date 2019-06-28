@@ -1,5 +1,4 @@
 import pandas as pd
-from constants import columns
 from equivalence import syllabus
 
 import data_channel.input as input_channel

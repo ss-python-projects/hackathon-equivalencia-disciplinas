@@ -1,5 +1,4 @@
 import pandas as pd
-from constants import columns
 
 def read_disciplines():
     """

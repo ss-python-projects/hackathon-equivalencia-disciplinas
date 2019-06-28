@@ -9,7 +9,13 @@ class Database:
         """
         Write data to a CSV file.
         """
-        document.to_csv(f"assets/db/{collection_name}.csv", mode="a", sep=";", header=False)
+        document.to_csv(
+            f"assets/db/{collection_name}.csv", 
+            mode="a", 
+            sep=";", 
+            header=False,
+            index=False,
+        )
 
     def get_documents(self, collection_name, label_filter):
         """

@@ -16,7 +16,9 @@ class DisciplineEquivalence:
         Calculate the equivalence type based on the
         workload of both disciplines.
         """
-        diff = (discipline_b.workload / discipline_a.workload)
+        workload_a = int(discipline_a.workload)
+        workload_b = int(discipline_b.workload)
+        diff = (workload_b / workload_a)
         equivalence_type = 0
 
         if diff >= 0.75:

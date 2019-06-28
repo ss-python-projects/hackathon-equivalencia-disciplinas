@@ -96,7 +96,7 @@ def calculate_equivalences(discs_not_offered, discs_offered):
                     # course syllabus
                     if equivalence_type > 0 and syllabus.similarity(not_offered, offered) > 0.40:
                         whitelist.add_record(not_offered, offered)
-                        final_output.append(
+                        final_output = final_output.append(
                             add_to_final_output(not_offered, offered, equivalence_type),
                             ignore_index=True
                         )

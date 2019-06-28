@@ -3,47 +3,10 @@ from constants import columns
 from equivalence import workload, syllabus
 
 import data_channel.input as input_channel
+from model.discipline_equivalence import DisciplineEquivalence
+from model.discipline import Discipline
 from memory.whitelist import Whitelist
 from memory.blacklist import Blacklist
-
-def add_to_final_output(discipline, equivalence, equivalence_type):
-    final_output = pd.DataFrame(columns=[
-        columns.DISCIPLINE_NAME,
-        columns.DISCIPLINE_WORKLOAD,
-        columns.EQUIVALENT_DISCIPLINE_NAME,
-        columns.EQUIVALENT_DISCIPLINE_WORKLOAD,
-        columns.EQUIVALENCE_TYPE,
-    ])
-
-    final_output = final_output.append({
-        columns.DISCIPLINE_NAME: discipline[columns.DISCIPLINE_NAME],
-        columns.DISCIPLINE_WORKLOAD: discipline[columns.DISCIPLINE_WORKLOAD],
-        columns.EQUIVALENT_DISCIPLINE_NAME: equivalence[columns.DISCIPLINE_NAME],
-        columns.EQUIVALENT_DISCIPLINE_WORKLOAD: equivalence[columns.DISCIPLINE_WORKLOAD],
-        columns.EQUIVALENCE_TYPE: equivalence_type,
-    }, ignore_index=True)
-
-    return final_output
-
-def push_to_final_output(discipline, equivalences):
-    final_output = pd.DataFrame(columns=[
-        columns.DISCIPLINE_NAME,
-        columns.DISCIPLINE_WORKLOAD,
-        columns.EQUIVALENT_DISCIPLINE_NAME,
-        columns.EQUIVALENT_DISCIPLINE_WORKLOAD,
-        columns.EQUIVALENCE_TYPE,
-    ])
-
-    for i, equivalence in equivalences.iterrows():
-        final_output = final_output.append({
-            columns.DISCIPLINE_NAME: discipline[columns.DISCIPLINE_NAME],
-            columns.DISCIPLINE_WORKLOAD: discipline[columns.DISCIPLINE_WORKLOAD],
-            columns.EQUIVALENT_DISCIPLINE_NAME: equivalence[columns.DISCIPLINE_NAME],
-            columns.EQUIVALENT_DISCIPLINE_WORKLOAD: equivalence[columns.DISCIPLINE_WORKLOAD],
-            columns.EQUIVALENCE_TYPE: equivalence[columns.EQUIVALENCE_TYPE],
-        }, ignore_index=True)
-
-    return final_output
 
 def calculate_equivalences(discs_not_offered, discs_offered):
     # The program's "memory" - avoids recalculating unnecessary stuff
@@ -52,15 +15,19 @@ def calculate_equivalences(discs_not_offered, discs_offered):
 
     # Final equivalences shown to the coordinator
     final_output = pd.DataFrame(columns=[
-        columns.DISCIPLINE_NAME,
-        columns.DISCIPLINE_WORKLOAD,
-        columns.EQUIVALENT_DISCIPLINE_NAME,
-        columns.EQUIVALENT_DISCIPLINE_WORKLOAD,
-        columns.EQUIVALENCE_TYPE,
+        "COD_DISCIP_ORIG", "NOME_DISCIP_ORIG", "CARGAH_DISCIP_ORIG", "EMENTA_DISCIP_ORIG",
+        "COD_DISCIP_EQUIV", "NOME_DISCIP_EQUIV", "CARGAH_DISCIP_EQUIV", "EMENTA_DISCIP_EQUIV",
+        "TIPO_EQUIV"
     ])
 
     # For each "not offered" discipline, do:
     for i, not_offered in discs_not_offered.iterrows():
+        not_offered_discipline = Discipline(
+            id=not_offered["COD_DISCIPLINA"],
+            name=not_offered["NOM_DISCIPLINA"],
+            workload=not_offered["VAL_CARGA_HORARIA"],
+            syllabus=not_offered["DSC_EMENTA"],
+        )
 
         # If equivalences for "not offered" discipline were
         # already calculated (i.e. is whitelisted), then:
@@ -78,28 +45,25 @@ def calculate_equivalences(discs_not_offered, discs_offered):
 
             # For each "offered" discipline, do:
             for j, offered in discs_offered.iterrows():
+                offered_discipline = Discipline(
+                    id=offered["COD_DISCIPLINA"],
+                    name=offered["NOM_DISCIPLINA"],
+                    workload=offered["VAL_CARGA_HORARIA"],
+                    syllabus=offered["DSC_EMENTA"],
+                )
 
                 # If "offered" discipline is NOT tagged as not equivalent
                 # (i.e. is blacklisted), then:
                 if not blacklist.has_record(not_offered, offered):
-                    workload_diff = workload.difference(not_offered, offered)
-
-                    # Check "equivalence type" based on difference between
-                    # workloads
-                    equivalence_type = 0
-                    if workload_diff >= 0.75:
-                        equivalence_type = 1
-                    elif workload_diff >= 0.6 and workload_diff < 0.75:
-                        equivalence_type = 2
 
                     # If both disciplines are equivalent by workload and by
                     # course syllabus
-                    if equivalence_type > 0 and syllabus.similarity(not_offered, offered) > 0.40:
+                    are_equivalent_by_workload = DisciplineEquivalence.are_equivalent_by_workload(not_offered_discipline, offered_discipline)
+                    are_equivalent_by_syllabus = syllabus.similarity(not_offered, offered) > 0.40
+                    if (are_equivalent_by_workload and are_equivalent_by_syllabus):
                         whitelist.add_record(not_offered, offered)
-                        final_output = final_output.append(
-                            add_to_final_output(not_offered, offered, equivalence_type),
-                            ignore_index=True
-                        )
+                        equivalence_discipline = DisciplineEquivalence(not_offered_discipline, offered_discipline)
+                        final_output = final_output.append(equivalence_discipline.serialize(), ignore_index=True)
 
                     # However, if both disciplines are NOT equivalent
                     else:

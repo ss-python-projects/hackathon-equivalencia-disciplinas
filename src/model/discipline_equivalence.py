@@ -1,4 +1,5 @@
 import pandas as pd
+from uuid import uuid4
 
 class DisciplineEquivalence:
     """
@@ -6,6 +7,7 @@ class DisciplineEquivalence:
     """
 
     def __init__(self, original_discipline, equivalent_discipline):
+        self.uuid = uuid4()
         self.original_discipline = original_discipline
         self.equivalent_discipline = equivalent_discipline
         self.equivalence_type = DisciplineEquivalence.calculate_equivalence_type(original_discipline, equivalent_discipline)
@@ -44,11 +46,13 @@ class DisciplineEquivalence:
         """
         return pd.DataFrame(
             columns=[
+                "UUID",
                 "COD_DISCIP_ORIG", "NOME_DISCIP_ORIG", "CARGAH_DISCIP_ORIG", "EMENTA_DISCIP_ORIG",
                 "COD_DISCIP_EQUIV", "NOME_DISCIP_EQUIV", "CARGAH_DISCIP_EQUIV", "EMENTA_DISCIP_EQUIV",
                 "TIPO_EQUIV"
             ],
             data = [[
+                self.uuid,
                 self.original_discipline.id, self.original_discipline.name,
                 self.original_discipline.workload, self.original_discipline.syllabus,
                 self.equivalent_discipline.id, self.equivalent_discipline.name,

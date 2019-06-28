@@ -26,11 +26,11 @@ def calculate_equivalences(discs_not_offered, discs_offered):
 
         # If equivalences for "not offered" discipline were
         # already calculated (i.e. is whitelisted), then:
-        if whitelist.has_any_record(not_offered):
+        if whitelist.has_any_related_discipline(not_offered_discipline):
 
             # Get equivalences and save them into the final result
             final_output.append(
-                push_to_final_output(not_offered, whitelist.get_records_for(not_offered)),
+                push_to_final_output(not_offered, whitelist.get_related_disciplines(not_offered_discipline)),
                 ignore_index=True
             )
 
@@ -44,20 +44,21 @@ def calculate_equivalences(discs_not_offered, discs_offered):
 
                 # If "offered" discipline is NOT tagged as not equivalent
                 # (i.e. is blacklisted), then:
-                if not blacklist.has_record(not_offered, offered):
+                if not blacklist.are_disciplines_related(not_offered_discipline, offered_discipline):
 
                     # If both disciplines are equivalent by workload and by
                     # course syllabus
                     are_equivalent_by_workload = DisciplineEquivalence.are_equivalent_by_workload(not_offered_discipline, offered_discipline)
                     are_equivalent_by_syllabus = syllabus.similarity(not_offered, offered) > 0.40
                     if (are_equivalent_by_workload and are_equivalent_by_syllabus):
-                        whitelist.add_record(not_offered, offered)
                         equivalence_discipline = DisciplineEquivalence(not_offered_discipline, offered_discipline)
+                        whitelist.add_discipline(equivalence_discipline)
                         final_output = final_output.append(equivalence_discipline.serialize(), ignore_index=True)
 
                     # However, if both disciplines are NOT equivalent
                     else:
-                        blacklist.add_record(not_offered, offered)
+                        equivalence_discipline = DisciplineEquivalence(not_offered_discipline, offered_discipline)
+                        blacklist.add_discipline(equivalence_discipline)
 
     return final_output
 

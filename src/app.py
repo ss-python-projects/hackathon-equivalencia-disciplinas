@@ -1,10 +1,10 @@
 import pandas as pd
 from constants import columns
-from equivalence import workload, syllabus
+from equivalence import syllabus
 
 import data_channel.input as input_channel
 from model.discipline_equivalence import DisciplineEquivalence
-from model.discipline import Discipline
+from adapter.discipline import Discipline as DisciplineAdapter
 from memory.whitelist import Whitelist
 from memory.blacklist import Blacklist
 
@@ -22,12 +22,7 @@ def calculate_equivalences(discs_not_offered, discs_offered):
 
     # For each "not offered" discipline, do:
     for i, not_offered in discs_not_offered.iterrows():
-        not_offered_discipline = Discipline(
-            id=not_offered["COD_DISCIPLINA"],
-            name=not_offered["NOM_DISCIPLINA"],
-            workload=not_offered["VAL_CARGA_HORARIA"],
-            syllabus=not_offered["DSC_EMENTA"],
-        )
+        not_offered_discipline = DisciplineAdapter.adapt(not_offered)
 
         # If equivalences for "not offered" discipline were
         # already calculated (i.e. is whitelisted), then:
@@ -45,12 +40,7 @@ def calculate_equivalences(discs_not_offered, discs_offered):
 
             # For each "offered" discipline, do:
             for j, offered in discs_offered.iterrows():
-                offered_discipline = Discipline(
-                    id=offered["COD_DISCIPLINA"],
-                    name=offered["NOM_DISCIPLINA"],
-                    workload=offered["VAL_CARGA_HORARIA"],
-                    syllabus=offered["DSC_EMENTA"],
-                )
+                offered_discipline = DisciplineAdapter.adapt(offered)
 
                 # If "offered" discipline is NOT tagged as not equivalent
                 # (i.e. is blacklisted), then:

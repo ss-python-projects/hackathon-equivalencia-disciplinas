@@ -14,7 +14,7 @@ def read_disciplines():
 
     # Currently, using the same entry list. There should be separated lists
     # for both inputs.
-    not_offered = disciplines[:1]
-    offered = disciplines[5:15]
+    not_offered = disciplines[:5]
+    offered = disciplines[5:25]
 
     return not_offered, offered

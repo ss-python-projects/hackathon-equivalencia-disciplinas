@@ -1,5 +1,6 @@
 import pandas as pd
 from brain.syllabus import Syllabus as SyllabusBrain
+from strategy.cosine_similarity import CosineSimilarity as CosineSimilarityStrategy
 
 import data_channel.input as input_channel
 from model.discipline_equivalence import DisciplineEquivalence
@@ -48,7 +49,7 @@ def calculate_equivalences(discs_not_offered, discs_offered):
                     # If both disciplines are equivalent by workload and by
                     # course syllabus
                     are_equivalent_by_workload = DisciplineEquivalence.are_equivalent_by_workload(not_offered_discipline, offered_discipline)
-                    are_equivalent_by_syllabus = SyllabusBrain(not_offered_discipline, offered_discipline).calculate_similarity() > 0.75
+                    are_equivalent_by_syllabus = SyllabusBrain(CosineSimilarityStrategy(), not_offered_discipline, offered_discipline).compare() > 0.75
                     if (are_equivalent_by_workload and are_equivalent_by_syllabus):
                         equivalence_discipline = DisciplineEquivalence(not_offered_discipline, offered_discipline)
                         whitelist.add_discipline(equivalence_discipline)

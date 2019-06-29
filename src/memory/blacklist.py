@@ -24,7 +24,8 @@ class Blacklist:
         """
         Get all disciplines not equivalent to the given discipline.
         """
-        return self.db.get_documents("blacklist", discipline.id)
+        related_disciplines = self.db.get_documents("blacklist", discipline.id)
+        return related_disciplines
 
     def add_discipline(self, discipline_equivalence):
         """
